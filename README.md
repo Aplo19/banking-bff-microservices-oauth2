@@ -1,4 +1,4 @@
-# Banco Platform - BFF + Microservicios (Prueba Tecnica)
+# Banco Platform - BFF + Microservicios
 
 Arquitectura backend orientada a integracion de servicios financieros: un `BFF` consume dos microservicios (`clientes` y `productos`) protegidos con OAuth2/JWT, aplica encriptacion de `codigoUnico` y propaga `X-Trace-Id` para trazabilidad.
 
