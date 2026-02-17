@@ -134,7 +134,7 @@ cd ms-producto && mvn test
 ```
 
 ## Notas para portafolio
-- Este proyecto esta disenado como demostracion tecnica de arquitectura.
+- Este proyecto esta diseñado como demostracion tecnica de arquitectura.
 - Los endpoints `encriptar/desencriptar` del BFF se consideran de apoyo para pruebas.
 - Para un entorno real: usar secretos por variables de entorno/secret manager y endurecer politicas de seguridad.
 
