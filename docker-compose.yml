@@ -1,0 +1,74 @@
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    container_name: auth-server
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/financiera_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  bff:
+    build:
+      context: .
+      dockerfile: bff/Dockerfile
+    container_name: bff
+    ports:
+      - "8086:8086"
+    environment:
+      AUTH_SERVER_URL: http://auth-server:9000
+      MICROSERVICIO_CLIENTE_URL: http://ms-cliente:8085/api
+      MICROSERVICIO_PRODUCTO_URL: http://ms-producto:8084/api
+      BFF_TOKEN_URI: http://auth-server:9000/oauth2/token
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth-server:9000/oauth2/jwks
+    depends_on:
+      - auth-server
+    restart: unless-stopped
+
+  ms-cliente:
+    build:
+      context: .
+      dockerfile: ms-cliente/Dockerfile
+    container_name: ms-cliente
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/financiera_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://auth-server:9000
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth-server:9000/oauth2/jwks
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  ms-producto:
+    build:
+      context: .
+      dockerfile: ms-producto/Dockerfile
+    container_name: ms-producto
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/financiera_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://auth-server:9000
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth-server:9000/oauth2/jwks
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: banco-network
+    driver: bridge
